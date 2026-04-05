@@ -6,7 +6,7 @@
 # ---------------------------------------------------------------------------
 # Stage 1: Build
 # ---------------------------------------------------------------------------
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN node node_modules/typescript/bin/tsc
 # ---------------------------------------------------------------------------
 # Stage 2: Runtime
 # ---------------------------------------------------------------------------
-FROM node:20-alpine
+FROM node:22-alpine
 
 LABEL org.opencontainers.image.title="obsidian-mcp"
 LABEL org.opencontainers.image.description="MCP server for the Obsidian REST API"

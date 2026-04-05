@@ -10,8 +10,19 @@ const OBSIDIAN_API_KEY = process.env.OBSIDIAN_API_KEY;
 const MCP_TRANSPORT = process.env.MCP_TRANSPORT || "http";
 const MCP_PORT = parseInt(process.env.MCP_PORT || "3001", 10);
 const MCP_API_KEY = process.env.MCP_API_KEY;
+const SESSION_TTL_MS = parseInt(process.env.MCP_SESSION_TTL || "1800000", 10); // 30 min
+
+interface Session {
+  transport: StreamableHTTPServerTransport;
+  lastAccess: number;
+}
 
 async function main() {
+  if (!OBSIDIAN_API_KEY) {
+    console.error("ERROR: OBSIDIAN_API_KEY is required");
+    process.exit(1);
+  }
+
   if (MCP_TRANSPORT === "stdio") {
     const mcpServer = createMcpServer(OBSIDIAN_API_URL, OBSIDIAN_API_KEY);
     const transport = new StdioServerTransport();
@@ -35,16 +46,28 @@ async function main() {
 
   const authMiddleware = createAuthMiddleware(MCP_API_KEY);
 
-  // Map of active transports by session ID
-  const transports = new Map<string, StreamableHTTPServerTransport>();
+  // Map of active sessions by session ID
+  const sessions = new Map<string, Session>();
+
+  // Clean up expired sessions every 60 seconds
+  setInterval(() => {
+    const now = Date.now();
+    for (const [id, session] of sessions) {
+      if (now - session.lastAccess > SESSION_TTL_MS) {
+        sessions.delete(id);
+      }
+    }
+  }, 60_000);
 
   // MCP endpoint (authenticated)
   app.post("/mcp", authMiddleware, async (req, res) => {
     const sessionId = req.headers["mcp-session-id"] as string | undefined;
     let transport: StreamableHTTPServerTransport;
 
-    if (sessionId && transports.has(sessionId)) {
-      transport = transports.get(sessionId)!;
+    if (sessionId && sessions.has(sessionId)) {
+      const session = sessions.get(sessionId)!;
+      session.lastAccess = Date.now();
+      transport = session.transport;
     } else if (!sessionId) {
       // New session — create a fresh server and transport per session
       // (McpServer only supports one transport connection at a time)
@@ -53,7 +76,7 @@ async function main() {
         sessionIdGenerator: () => randomUUID(),
       });
       transport.onclose = () => {
-        if (transport.sessionId) transports.delete(transport.sessionId);
+        if (transport.sessionId) sessions.delete(transport.sessionId);
       };
       await mcpServer.connect(transport);
     } else {
@@ -64,29 +87,30 @@ async function main() {
     await transport.handleRequest(req, res);
 
     // Store session after handleRequest (sessionId is assigned during request handling)
-    if (transport.sessionId && !transports.has(transport.sessionId)) {
-      transports.set(transport.sessionId, transport);
+    if (transport.sessionId && !sessions.has(transport.sessionId)) {
+      sessions.set(transport.sessionId, { transport, lastAccess: Date.now() });
     }
   });
 
   app.get("/mcp", authMiddleware, async (req, res) => {
     const sessionId = req.headers["mcp-session-id"] as string | undefined;
-    if (!sessionId || !transports.has(sessionId)) {
+    if (!sessionId || !sessions.has(sessionId)) {
       res.status(400).json({ error: "Missing or invalid session ID" });
       return;
     }
-    const transport = transports.get(sessionId)!;
-    await transport.handleRequest(req, res);
+    const session = sessions.get(sessionId)!;
+    session.lastAccess = Date.now();
+    await session.transport.handleRequest(req, res);
   });
 
   app.delete("/mcp", authMiddleware, async (req, res) => {
     const sessionId = req.headers["mcp-session-id"] as string | undefined;
-    if (!sessionId || !transports.has(sessionId)) {
+    if (!sessionId || !sessions.has(sessionId)) {
       res.status(400).json({ error: "Missing or invalid session ID" });
       return;
     }
-    const transport = transports.get(sessionId)!;
-    await transport.handleRequest(req, res);
+    const session = sessions.get(sessionId)!;
+    await session.transport.handleRequest(req, res);
   });
 
   app.listen(MCP_PORT, () => {
