@@ -3,7 +3,6 @@ name: Build, Test & Push
 on:
   push:
     branches: [main]
-    tags: ["v*"]
     paths:
       - "Dockerfile"
       - "docker-compose.yml"
@@ -12,6 +11,8 @@ on:
       - "package-lock.json"
       - "tsconfig.json"
       - ".github/workflows/ci.yml"
+  release:
+    types: [published]
   pull_request:
     branches: [main]
   workflow_dispatch:
