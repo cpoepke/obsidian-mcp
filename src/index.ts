@@ -44,6 +44,14 @@ async function main() {
     res.json({ status: "ok" });
   });
 
+  // Reject OAuth discovery — this server uses static Bearer tokens, not OAuth
+  app.get("/.well-known/oauth-authorization-server", (_req, res) => {
+    res.status(404).json({ error: "OAuth not supported" });
+  });
+  app.post("/register", (_req, res) => {
+    res.status(404).json({ error: "OAuth dynamic client registration not supported" });
+  });
+
   const authMiddleware = createAuthMiddleware(MCP_API_KEY);
 
   // Map of active sessions by session ID
