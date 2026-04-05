@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/cpoepke/obsidian-mcp/compare/v0.1.3...v0.1.4) (2026-04-05)
+
+
+### Features
+
+* push versioned Docker images on release via release-please workflow ([cadb063](https://github.com/cpoepke/obsidian-mcp/commit/cadb063d2bec026939830b93339d7dac3ee17f01))
+
 ## [0.1.3](https://github.com/cpoepke/obsidian-mcp/compare/v0.1.2...v0.1.3) (2026-04-05)
 
 
