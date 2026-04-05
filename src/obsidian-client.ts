@@ -1,3 +1,5 @@
+const REQUEST_TIMEOUT_MS = 30_000;
+
 export class ObsidianClient {
   constructor(private baseUrl: string, private apiKey?: string) {}
 
@@ -8,9 +10,13 @@ export class ObsidianClient {
     return h;
   }
 
+  private fetch(url: string, init?: RequestInit): Promise<Response> {
+    return fetch(url, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS), ...init });
+  }
+
   async getNote(path: string): Promise<string> {
     validatePath(path);
-    const res = await fetch(`${this.baseUrl}/vault/${encodeURIPath(path)}`, {
+    const res = await this.fetch(`${this.baseUrl}/vault/${encodeURIPath(path)}`, {
       headers: this.headers({ Accept: "text/markdown" }),
     });
     if (!res.ok) throw new Error(`Failed to read note: HTTP ${res.status}`);
@@ -19,7 +25,7 @@ export class ObsidianClient {
 
   async putNote(path: string, content: string): Promise<void> {
     validatePath(path);
-    const res = await fetch(`${this.baseUrl}/vault/${encodeURIPath(path)}`, {
+    const res = await this.fetch(`${this.baseUrl}/vault/${encodeURIPath(path)}`, {
       method: "PUT",
       headers: this.headers({ "Content-Type": "text/markdown" }),
       body: content,
@@ -29,7 +35,7 @@ export class ObsidianClient {
 
   async deleteNote(path: string): Promise<void> {
     validatePath(path);
-    const res = await fetch(`${this.baseUrl}/vault/${encodeURIPath(path)}`, {
+    const res = await this.fetch(`${this.baseUrl}/vault/${encodeURIPath(path)}`, {
       method: "DELETE",
       headers: this.headers(),
     });
@@ -37,7 +43,7 @@ export class ObsidianClient {
   }
 
   async listNotes(): Promise<string[]> {
-    const res = await fetch(`${this.baseUrl}/vault/`, {
+    const res = await this.fetch(`${this.baseUrl}/vault/`, {
       headers: this.headers(),
     });
     if (!res.ok) throw new Error(`Failed to list notes: HTTP ${res.status}`);
@@ -45,7 +51,7 @@ export class ObsidianClient {
   }
 
   async searchSimple(query: string): Promise<unknown> {
-    const res = await fetch(
+    const res = await this.fetch(
       `${this.baseUrl}/search/simple/?query=${encodeURIComponent(query)}`,
       { headers: this.headers() }
     );
@@ -54,7 +60,7 @@ export class ObsidianClient {
   }
 
   async searchDataview(dql: string): Promise<unknown> {
-    const res = await fetch(`${this.baseUrl}/search/`, {
+    const res = await this.fetch(`${this.baseUrl}/search/`, {
       method: "POST",
       headers: this.headers({ "Content-Type": "application/vnd.olrapi.dataview.dql+txt" }),
       body: dql,
@@ -64,7 +70,7 @@ export class ObsidianClient {
   }
 
   async listCommands(): Promise<unknown> {
-    const res = await fetch(`${this.baseUrl}/commands/`, {
+    const res = await this.fetch(`${this.baseUrl}/commands/`, {
       headers: this.headers(),
     });
     if (!res.ok) throw new Error(`Failed to list commands: HTTP ${res.status}`);
@@ -72,7 +78,7 @@ export class ObsidianClient {
   }
 
   async executeCommand(commandId: string): Promise<unknown> {
-    const res = await fetch(`${this.baseUrl}/commands/${encodeURIComponent(commandId)}`, {
+    const res = await this.fetch(`${this.baseUrl}/commands/${encodeURIComponent(commandId)}`, {
       method: "POST",
       headers: this.headers(),
     });
