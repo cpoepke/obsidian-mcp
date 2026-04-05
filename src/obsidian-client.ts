@@ -51,10 +51,11 @@ export class ObsidianClient {
   }
 
   async searchSimple(query: string): Promise<unknown> {
-    const res = await this.fetch(
-      `${this.baseUrl}/search/simple/?query=${encodeURIComponent(query)}`,
-      { headers: this.headers() }
-    );
+    const res = await this.fetch(`${this.baseUrl}/search/simple/`, {
+      method: "POST",
+      headers: this.headers({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ query }),
+    });
     if (!res.ok) throw new Error(`Search failed: HTTP ${res.status}`);
     return res.json();
   }
@@ -83,7 +84,8 @@ export class ObsidianClient {
       headers: this.headers(),
     });
     if (!res.ok) throw new Error(`Failed to execute command: HTTP ${res.status}`);
-    return res.json();
+    const text = await res.text();
+    return text ? JSON.parse(text) : { status: "ok" };
   }
 }
 
