@@ -36,7 +36,6 @@ COPY --from=builder /app/dist/ ./dist/
 ENV MCP_TRANSPORT=http
 ENV MCP_PORT=3001
 ENV OBSIDIAN_API_URL=http://obsidian:27123
-ENV OBSIDIAN_API_KEY=
 
 EXPOSE 3001
 
