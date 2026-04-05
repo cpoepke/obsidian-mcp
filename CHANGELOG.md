@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/cpoepke/obsidian-mcp/compare/v0.1.2...v0.1.3) (2026-04-05)
+
+
+### Bug Fixes
+
+* trigger versioned Docker image push on release events ([95b352a](https://github.com/cpoepke/obsidian-mcp/commit/95b352a836d9632269c00de8f559bdfba87737fc))
+
 ## [0.1.2](https://github.com/cpoepke/obsidian-mcp/compare/v0.1.1...v0.1.2) (2026-04-05)
 
 
