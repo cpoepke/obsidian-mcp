@@ -1,7 +1,11 @@
 const REQUEST_TIMEOUT_MS = 30_000;
 
 export class ObsidianClient {
-  constructor(private baseUrl: string, private apiKey?: string) {}
+  constructor(
+    private baseUrl: string,
+    private apiKey?: string,
+    private gitUrl?: string,
+  ) {}
 
   private headers(extra?: Record<string, string>): Record<string, string> {
     const h: Record<string, string> = {};
@@ -85,6 +89,13 @@ export class ObsidianClient {
     if (!res.ok) throw new Error(`Failed to execute command: HTTP ${res.status}`);
     const text = await res.text();
     return text ? JSON.parse(text) : { status: "ok" };
+  }
+
+  async gitPull(): Promise<string> {
+    if (!this.gitUrl) throw new Error("git_pull not configured: OBSIDIAN_GIT_URL is not set");
+    const res = await this.fetch(`${this.gitUrl}/git/pull`, { method: "POST" });
+    if (!res.ok) throw new Error(`git pull failed: HTTP ${res.status}`);
+    return res.text();
   }
 }
 

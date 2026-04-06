@@ -10,8 +10,8 @@ import {
   ExecuteCommandSchema,
 } from "./types.js";
 
-export function createMcpServer(obsidianUrl: string, obsidianApiKey?: string): McpServer {
-  const obsidian = new ObsidianClient(obsidianUrl, obsidianApiKey);
+export function createMcpServer(obsidianUrl: string, obsidianApiKey?: string, gitUrl?: string): McpServer {
+  const obsidian = new ObsidianClient(obsidianUrl, obsidianApiKey, gitUrl);
 
   const server = new McpServer({
     name: "obsidian-mcp",
@@ -136,6 +136,19 @@ export function createMcpServer(obsidianUrl: string, obsidianApiKey?: string): M
       try {
         const result = await obsidian.executeCommand(commandId);
         return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      } catch (e) {
+        return { content: [{ type: "text", text: `Error: ${e}` }], isError: true };
+      }
+    }
+  );
+
+  server.tool(
+    "git_pull",
+    "Pull the latest commits from the remote git repository into the Obsidian vault",
+    async () => {
+      try {
+        const output = await obsidian.gitPull();
+        return { content: [{ type: "text", text: output || "Already up to date." }] };
       } catch (e) {
         return { content: [{ type: "text", text: `Error: ${e}` }], isError: true };
       }

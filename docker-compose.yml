@@ -15,6 +15,9 @@ services:
       - LOCAL_REST_API_PORT=27124
       - DISPLAY=:99
       - ELECTRON_DISABLE_GPU=1
+      - GIT_REPO_URL=${GIT_REPO_URL:-}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - GIT_PULL_INTERVAL=${GIT_PULL_INTERVAL:-}
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://127.0.0.1:27123/"]
       interval: 10s
@@ -34,6 +37,7 @@ services:
     environment:
       - OBSIDIAN_API_URL=http://obsidian:27123
       - OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY:-}
+      - OBSIDIAN_GIT_URL=http://obsidian:27125
       - MCP_API_KEY=${MCP_API_KEY:-}
       - MCP_TRANSPORT=http
       - MCP_PORT=3001
