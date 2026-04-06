@@ -11,6 +11,7 @@ const MCP_TRANSPORT = process.env.MCP_TRANSPORT || "http";
 const MCP_PORT = parseInt(process.env.MCP_PORT || "3001", 10);
 const MCP_API_KEY = process.env.MCP_API_KEY;
 const SESSION_TTL_MS = parseInt(process.env.MCP_SESSION_TTL || "1800000", 10); // 30 min
+const OBSIDIAN_GIT_URL = process.env.OBSIDIAN_GIT_URL;
 
 interface Session {
   transport: StreamableHTTPServerTransport;
@@ -24,7 +25,7 @@ async function main() {
   }
 
   if (MCP_TRANSPORT === "stdio") {
-    const mcpServer = createMcpServer(OBSIDIAN_API_URL, OBSIDIAN_API_KEY);
+    const mcpServer = createMcpServer(OBSIDIAN_API_URL, OBSIDIAN_API_KEY, OBSIDIAN_GIT_URL);
     const transport = new StdioServerTransport();
     await mcpServer.connect(transport);
     console.error("MCP server running on stdio");
@@ -79,7 +80,7 @@ async function main() {
     } else if (!sessionId) {
       // New session — create a fresh server and transport per session
       // (McpServer only supports one transport connection at a time)
-      const mcpServer = createMcpServer(OBSIDIAN_API_URL, OBSIDIAN_API_KEY);
+      const mcpServer = createMcpServer(OBSIDIAN_API_URL, OBSIDIAN_API_KEY, OBSIDIAN_GIT_URL);
       transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: () => randomUUID(),
       });
