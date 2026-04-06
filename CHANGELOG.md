@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.5](https://github.com/cpoepke/obsidian-mcp/compare/v0.1.4...v0.1.5) (2026-04-06)
+
+
+### Features
+
+* add git_pull MCP tool for on-demand vault sync ([#6](https://github.com/cpoepke/obsidian-mcp/issues/6)) ([18fc113](https://github.com/cpoepke/obsidian-mcp/commit/18fc1134598bd3b2dcdcbc9243823b5fce6822c4))
+
+
+### Bug Fixes
+
+* add WWW-Authenticate Bearer header and reject OAuth discovery ([72ce3bc](https://github.com/cpoepke/obsidian-mcp/commit/72ce3bceb7484da33f343a38d174356ae0de4b39))
+* search/simple requires POST with query in URL params, not body ([a34a0a0](https://github.com/cpoepke/obsidian-mcp/commit/a34a0a061ad42deb8c90c89ada26c55a031987e2))
+* use POST for search/simple and handle empty executeCommand response ([a1ca577](https://github.com/cpoepke/obsidian-mcp/commit/a1ca57760ec24e6539c0cc5760d2309850774969))
+
 ## [0.1.4](https://github.com/cpoepke/obsidian-mcp/compare/v0.1.3...v0.1.4) (2026-04-05)
 
 
