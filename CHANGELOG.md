@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.6](https://github.com/cpoepke/obsidian-mcp/compare/v0.1.5...v0.1.6) (2026-05-14)
+
+
+### Features
+
+* add OpenTelemetry auto-instrumentation ([a508258](https://github.com/cpoepke/obsidian-mcp/commit/a508258a1c1b0396ed9d3fa4ac8cb3ee03a578cc))
+
+
+### Bug Fixes
+
+* **lint:** ignore otel dep in knip — loaded via NODE_OPTIONS at runtime ([3816368](https://github.com/cpoepke/obsidian-mcp/commit/381636811ed7f82c111cc0d907ced18a18c1c455))
+
 ## [0.1.5](https://github.com/cpoepke/obsidian-mcp/compare/v0.1.4...v0.1.5) (2026-04-06)
 
 
